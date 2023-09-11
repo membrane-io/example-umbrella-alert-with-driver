@@ -4,22 +4,15 @@
 import { nodes, root, state } from "membrane";
 
 export const Root = {
-  async status() {
-    const { status } = state;
-    if (!status) {
-      return "Invoke `:configure` first";
-    }
-    return status;
-  },
-
   async configure() {
     // Check every day at 7 AM
-    await root.checkWeather().$invokeAtCron(`0 0 7 * * *`);
-    state.status = "Configured";
+    root.checkWeather().$cron(`0 0 7 * * *`);
   },
 
   async checkWeather() {
-    const hourlyForecast = await nodes.weather.hourly.items.$query(`{ weather { id } }`);
+    const hourlyForecast = await nodes.weather.hourly.items.$query(
+      `{ weather { id } }`
+    );
     const rainToday = hourlyForecast
       .slice(0, 13)
       .flatMap((hour) => hour.weather)
